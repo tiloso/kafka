@@ -1,0 +1,28 @@
+version: 2
+jobs:
+  build:
+    working_directory: /build
+    docker:
+      - image: docker:17.05.0-ce-git
+    steps:
+      - checkout
+      - setup_docker_engine
+      - run:
+          name: kafka - build and push image
+          command: |
+            APP=kafka
+            TAG=${CIRCLE_SHA1:0:7}
+            docker build -t quay.io/tiloso/${APP}:${TAG} .
+            docker tag quay.io/tiloso/${APP}:${TAG} quay.io/tiloso/${APP}:latest
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS} quay.io
+            docker push quay.io/tiloso/${APP}
+      - run:
+          name: kafka-go-consumer - build and push image
+          command: |
+            APP=kafka-go-consumer
+            TAG=${CIRCLE_SHA1:0:7}
+            cd $APP
+            docker build -t quay.io/tiloso/${APP}:${TAG} .
+            docker tag quay.io/tiloso/${APP}:${TAG} quay.io/tiloso/${APP}:latest
+            docker login -u ${DOCKER_USER} -p ${DOCKER_PASS} quay.io
+            docker push quay.io/tiloso/${APP}

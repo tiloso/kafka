@@ -1,0 +1,71 @@
+version: '3'
+services:
+  kafka-go-consumer:
+    image: quay.io/tiloso/kafka-go-consumer
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - zoo1
+      - zoo2
+      - zoo3
+  kafka1:
+    image: quay.io/tiloso/kafka
+    command: |
+      --override broker.id=1
+      --override listeners=PLAINTEXT://kafka1:9091
+      --override zookeeper.connect=zoo1:2181,zoo2:2181,zoo3:2181
+    ports:
+      - 9091:9091
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+  kafka2:
+    image: quay.io/tiloso/kafka
+    command: |
+      --override broker.id=2
+      --override listeners=PLAINTEXT://kafka2:9092
+      --override zookeeper.connect=zoo1:2181,zoo2:2181,zoo3:2181
+    ports:
+      - 9092:9092
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+  kafka3:
+    image: quay.io/tiloso/kafka
+    command: |
+      --override broker.id=3
+      --override listeners=PLAINTEXT://kafka3:9093
+      --override zookeeper.connect=zoo1:2181,zoo2:2181,zoo3:2181
+    ports:
+      - 9093:9093
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+  zoo1:
+    image: zookeeper
+    restart: always
+    ports:
+      - 2181:2181
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+  zoo2:
+    image: zookeeper
+    restart: always
+    ports:
+      - 2182:2181
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+  zoo3:
+    image: zookeeper
+    restart: always
+    ports:
+      - 2183:2181
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
